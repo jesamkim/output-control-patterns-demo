@@ -3,6 +3,8 @@
 LLM 출력 제어 디자인 패턴을 **Amazon Bedrock Claude Sonnet 4.5 (Global Inference)**로 구현한 데모입니다.
 
 > 📖 Reference: [Generative AI Design Patterns](https://www.oreilly.com/library/view/generative-ai-design/9798341622654/) — Lakshmanan & Hapke, O'Reilly 2025
+>
+> 📝 Blog: [LLM 출력 제어 디자인 패턴 1편](https://jesamkim.github.io/ai-tech-blog/posts/2026-02-18-llm-%EC%B6%9C%EB%A0%A5-%EC%A0%9C%EC%96%B4-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-logits-masking%EB%B6%80%ED%84%B0-grammar-constraint-style-t/) | [2편](https://jesamkim.github.io/ai-tech-blog/posts/2026-02-18-llm-%EC%B6%9C%EB%A0%A5-%EC%A0%9C%EC%96%B4-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-2%ED%8E%B8-reverse-neutralization%EA%B3%BC-content-optimiza/)
 
 ![Architecture](images/architecture.png)
 
