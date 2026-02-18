@@ -91,15 +91,16 @@ COMPARE_MODELS=model-a,model-b python3 demo.py 1 --advanced
 
 ```
   Style Transfer Metrics
-+-------------+------------------+------+-------+---------+--------+-----------+------+
-| Scenario    | Style            | Orig | Trans | Preserv | NoDist | ToneShift | Time |
-+-------------+------------------+------+-------+---------+--------+-----------+------+
-| IT Incident | Business Formal  | 39   | 61    | 5       | 5      | 5         | 2.1s |
-| IT Incident | Tech Report      | 39   | 173   | 5       | 5      | 5         | 3.4s |
-| IT Incident | Legal Opinion    | 39   | 455   | 5       | 4      | 5         | 4.2s |
-| IT Incident | Emotion MAX      | 39   | 333   | 5       | 4      | 5         | 2.8s |
-| Security    | Executive Summary| 52   | 198   | 5       | 5      | 5         | 2.5s |
-+-------------+------------------+------+-------+---------+--------+-----------+------+
++--------------+------------------+------+-------+---------+--------+-----------+------+
+| Scenario     | Style            | Orig | Trans | Preserv | NoDist | ToneShift | Time |
++--------------+------------------+------+-------+---------+--------+-----------+------+
+| IT Incident  | Business Formal  | 39   | 829   | 5       | 5      | 5         | 4.9s |
+| IT Incident  | Technical Report | 39   | 564   | 5       | 5      | 5         | 4.8s |
+| IT Incident  | Legal Opinion    | 39   | 651   | 5       | 5      | 5         | 4.9s |
+| IT Incident  | Emotion MAX      | 39   | 313   | 5       | 3      | 5         | 8.0s |
+| Medical Cons | Medical Opinion  | 60   | 725   | 5       | 5      | 5         | 4.6s |
+| Security Inc | Executive Summary| 80   | 723   | 5       | 4      | 5         | 5.2s |
++--------------+------------------+------+-------+---------+--------+-----------+------+
 ```
 
 ### Pattern 2: Reverse Neutralization — <strong>도메인 전문가 페르소나</strong>
@@ -122,17 +123,17 @@ RLHF 정렬로 인해 중립적인 답변만 하는 LLM을, 도메인 전문가�
 
 ```
   Reverse Neutralization Metrics (Advanced)
-+----------------------+---------------+------------+------+
-| Persona              | Length(chars) | AvgSentLen | Time |
-+----------------------+---------------+------------+------+
-| Neutral AI           | 284           | 12.3       | 1.8s |
-| AWS Solutions Archit | 1523          | 18.7       | 5.2s |
-| Startup CTO          | 987           | 14.2       | 4.1s |
-| Security Expert (CIS | 1834          | 21.5       | 6.3s |
-| Data Scientist       | 1245          | 16.8       | 4.8s |
-| Regulatory Consultan | 1678          | 19.3       | 5.9s |
-| DevOps Lead          | 1356          | 17.1       | 5.0s |
-+----------------------+---------------+------------+------+
++----------------------+---------------+------------+-------+
+| Persona              | Length(chars) | AvgSentLen | Time  |
++----------------------+---------------+------------+-------+
+| Neutral AI           | 934           | 48.0       | 16.8s |
+| AWS Solutions Archit | 1057          | 30.1       | 17.0s |
+| Startup CTO          | 823           | 15.8       | 16.9s |
+| Security Expert (CIS | 1112          | 48.2       | 16.9s |
+| Data Scientist       | 1041          | 18.7       | 17.3s |
+| Regulatory Consultan | 846           | 32.0       | 15.7s |
+| DevOps Lead          | 1286          | 14.4       | 15.7s |
++----------------------+---------------+------------+-------+
 ```
 
 ### Pattern 3: Content Optimization — Self-Refine <strong>루프</strong>
@@ -240,27 +241,3 @@ Advanced <strong>모드에서</strong> 자동 산출되는 메트릭:
 3. Ouyang, L., et al. (2022). *Training language models to follow instructions with human feedback.* [arXiv:2203.02155](https://arxiv.org/abs/2203.02155)
 4. Reif, E., et al. (2022). *A Recipe for Arbitrary Text Style Transfer with Large Language Models.* ACL 2022.
 5. Zheng, L., et al. (2023). *Judging LLM-as-a-Judge.* [arXiv:2306.05685](https://arxiv.org/abs/2306.05685)
-
-## Contributing
-
-<strong>기여 방법</strong>:
-
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/new-pattern`)
-3. <strong>새 패턴</strong> 추가 시:
-   - `patterns/` 디렉토리에 새 모듈 생성
-   - `demo_<pattern_name>(advanced, json_mode)` 함수 구현
-   - `patterns/__init__.py`에 export 추가
-   - `demo.py`의 `DEMOS` dict에 등록
-4. <strong>새 시나리오</strong> 추가 시:
-   - 해당 패턴 모듈의 `SCENARIOS` 또는 `TASKS` dict에 추가
-5. Commit and push (`git push origin feature/new-pattern`)
-6. Create a Pull Request
-
-### <strong>코드 컨벤션</strong>
-
-- Python 3.10+
-- Type hints for function signatures
-- Docstrings for public functions
-- `call_bedrock()` for all LLM calls (via `patterns.bedrock`)
-- `OutputCollector`에 결과 수집 (`collector.add_result()`)
