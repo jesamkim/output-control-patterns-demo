@@ -1,25 +1,121 @@
-# Output Control Patterns Demo
+# LLM Output Control Design Patterns Demo
 
-LLM 출력 제어 디자인 패턴 데모 — Bedrock Claude Sonnet 4.5 (Global Inference)
+LLM 출력 제어 디자인 패턴을 **Amazon Bedrock Claude Sonnet 4.5 (Global Inference)**로 구현한 데모입니다.
 
-## 패턴
-1. **Style Transfer** — 톤/문체 변환 (격식체, 기술보고서, 고객응대)
-2. **Reverse Neutralization** — 도메인 전문가 페르소나 (AWS SA, 스타트업 CTO)
-3. **Content Optimization** — Self-Refine 루프 (생성 → 평가 → 재생성)
+> 📖 Reference: [Generative AI Design Patterns](https://www.oreilly.com/library/view/generative-ai-design/9798341622654/) — Lakshmanan & Hapke, O'Reilly 2025
 
-## 실행
-```bash
-python3 demo.py 1     # Style Transfer
-python3 demo.py 2     # Reverse Neutralization
-python3 demo.py 3     # Content Optimization
-python3 demo.py all   # 전체
+![Architecture](images/architecture.png)
+
+## Patterns
+
+### 1. Style Transfer — 톤·문체 변환
+
+같은 입력에 System Prompt만 바꿔서 다른 톤으로 변환합니다. 콘텐츠(의미)는 보존하고 스타일만 변경합니다.
+
+```
+python3 demo.py 1
 ```
 
-## 배포 위치
-- **개발**: `/home/ec2-user/clawd/projects/output-control-patterns-demo/`
-- **실행 서버**: `2026-poc:/Workshop/yan/output-control-patterns-demo/`
+**실행 결과:**
 
-## 싱크
-```bash
-rsync -avz projects/output-control-patterns-demo/ 2026-poc:/Workshop/yan/output-control-patterns-demo/
+> **원문:** 서버가 또 터졌어요. 빨리 확인해주세요. 어제도 같은 문제였는데 아직도 안 고쳐진 거예요?
+
+| Style | Output |
+|-------|--------|
+| 비즈니스 격식체 | 서버에 장애가 발생하였습니다. 조속한 확인을 요청드립니다. 전일에도 동일한 문제가 발생한 바 있으나, 아직 해결되지 않은 상황입니까? |
+| 기술 보고서 | **인시던트 보고서** — 서버 장애 재발, 전일 동일 증상의 해결 조치 불완전 추정, 근본 원인 분석 및 해결 조치 필요 |
+| 친절한 고객 응대 | 고객님께서 겪고 계신 불편함을 진심으로 공감하며, 빠른 해결을 위해 최선을 다하고 있습니다. 현재 기술팀에서 긴급하게 원인을 파악하고 있습니다. |
+
+### 2. Reverse Neutralization — 도메인 전문가 페르소나
+
+RLHF 정렬로 인해 중립적인 답변만 하는 LLM을, 도메인 전문가의 관점으로 전환합니다.
+
 ```
+python3 demo.py 2
+```
+
+**실행 결과:**
+
+> **질문:** 클라우드 마이그레이션을 고려하고 있는데, 어떤 전략이 좋을까요?
+
+| Persona | 특징 |
+|---------|------|
+| 🤖 중립 AI | 6R 전략을 교과서적으로 나열. "경우에 따라 다릅니다" 식의 회피 |
+| 🏗️ AWS SA (10년 경력) | "빅뱅 마이그레이션은 절대 하지 마세요" — 실패 사례 포함, 구체적 서비스명(MGN, S3+CloudFront), Quick Win → 6R → 최적화 3단계 |
+| 🚀 스타트업 CTO | "지금 마이그레이션이 정말 필요한가요?" — 비용/인력 현실 분석, Strangler Fig Pattern 추천, 15명 팀에 멀티클라우드는 지옥 |
+
+### 3. Content Optimization — Self-Refine 루프
+
+생성 → 자기 평가 → 피드백 반영 재생성의 반복 루프로 품질을 체계적으로 개선합니다.
+
+![Self-Refine Loop](images/self-refine-loop.png)
+
+```
+python3 demo.py 3
+```
+
+**실행 결과:**
+
+> **태스크:** Amazon Bedrock의 주요 특징을 3문장으로 설명하세요. 대상: 클라우드 경험이 없는 경영진.
+
+**📝 1차 생성 (temp=0.8):**
+> Amazon Bedrock은 AI 챗봇이나 자동화 서비스를 쉽게 만들 수 있는 클라우드 기반 플랫폼입니다. 복잡한 기술 지식 없이도 **Claude, Llama** 같은 세계 최고 수준의 AI 모델들을 바로 사용할 수 있으며, 회사의 데이터 보안을 **완벽하게** 지키면서 비즈니스에 맞게 커스터마이징할 수 있습니다.
+
+**🔍 자기 평가 (temp=0.3):**
+
+| 기준 | 점수 | 피드백 |
+|------|------|--------|
+| 명확성 | 4/5 | "Claude, Llama"는 경영진에게 생소 → "세계 최고 수준의 AI 모델"로 추상화 |
+| 간결성 | 3/5 | 두 번째 문장 과도하게 길어 호흡이 김 (54단어) → 분리 필요 |
+| 설득력 | 5/5 | Time-to-market, TCO, 컴플라이언스 정확히 타겟팅 |
+| 정확성 | 4/5 | "완벽하게"는 과장 → "엔터프라이즈급 보안으로" 수정 |
+
+**✅ 개선된 최종 버전 (temp=0.5):**
+> Amazon Bedrock은 AI 챗봇이나 자동화 서비스를 쉽게 만들 수 있는 클라우드 기반 플랫폼입니다. 복잡한 기술 지식 없이도 세계 최고 수준의 AI 모델들을 바로 사용할 수 있으며, **엔터프라이즈급 보안**으로 회사 데이터를 보호합니다. 사용한 만큼만 비용을 지불하는 구조로, 대규모 초기 투자 없이 고객 서비스 개선, 업무 자동화, 데이터 분석 등을 즉시 시작할 수 있습니다.
+
+→ 전문 용어 제거, 문장 길이 단축, 과장 표현 수정 — Self-Refine으로 **4.0 → 4.5+** 품질 향상
+
+## Quick Start
+
+### Prerequisites
+
+- Python 3.9+
+- AWS credentials configured (`~/.aws/credentials`)
+- Bedrock Claude Sonnet 4.5 access enabled
+
+### Install & Run
+
+```bash
+pip install boto3
+python3 demo.py all    # 전체 데모
+python3 demo.py 1      # Style Transfer만
+python3 demo.py 2      # Reverse Neutralization만
+python3 demo.py 3      # Content Optimization만
+```
+
+## Model
+
+| | |
+|---|---|
+| **Model** | Claude Sonnet 4.5 |
+| **Model ID** | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| **API** | Amazon Bedrock Converse API |
+| **Region** | us-west-2 (Global Inference) |
+
+## Project Structure
+
+```
+output-control-patterns-demo/
+├── demo.py              # 메인 데모 스크립트
+├── README.md
+└── images/
+    ├── architecture.png       # 전체 아키텍처
+    └── self-refine-loop.png   # Self-Refine 루프 다이어그램
+```
+
+## References
+
+1. Lakshmanan, V. & Hapke, H. (2025). *Generative AI Design Patterns.* O'Reilly Media.
+2. Madaan, A., et al. (2023). *Self-Refine: Iterative Refinement with Self-Feedback.* [arXiv:2303.17651](https://arxiv.org/abs/2303.17651)
+3. Ouyang, L., et al. (2022). *Training language models to follow instructions with human feedback.* [arXiv:2203.02155](https://arxiv.org/abs/2203.02155)
+4. Reif, E., et al. (2022). *A Recipe for Arbitrary Text Style Transfer with Large Language Models.* ACL 2022.
