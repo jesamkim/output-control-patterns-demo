@@ -51,11 +51,24 @@ Output JSON only: {{"preservation": N, "no_distortion": N, "tone_shift": N}}"""
 
 def parse_critique_scores(critique_text: str) -> dict:
     """Extract scores from Self-Critique JSON."""
+    # Strip markdown code block if present
+    text = critique_text.strip()
+    text = re.sub(r'^```(?:json)?\s*', '', text)
+    text = re.sub(r'\s*```\s*$', '', text)
+
+    # Try parsing the outermost JSON object
     try:
-        match = re.search(r'\{[\s\S]*\}', critique_text)
+        match = re.search(r'\{[\s\S]*\}', text)
         if match:
             data = json.loads(match.group())
-            return {k: v.get("score", 0) for k, v in data.items() if isinstance(v, dict)}
+            scores = {k: v.get("score", 0) for k, v in data.items() if isinstance(v, dict) and "score" in v}
+            if scores:
+                return scores
     except (json.JSONDecodeError, AttributeError):
         pass
-    return {}
+
+    # Fallback: extract individual "key": {"score": N} patterns
+    scores = {}
+    for m in re.finditer(r'"([^"]+)"\s*:\s*\{\s*"score"\s*:\s*(\d+)', text):
+        scores[m.group(1)] = int(m.group(2))
+    return scores

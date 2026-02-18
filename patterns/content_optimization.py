@@ -132,6 +132,7 @@ Output JSON with each criterion name as key and {{"score": N, "feedback": "..."}
         critique = call_bedrock(
             "You are a technical document quality auditor. Be strict and specific.",
             critique_prompt,
+            max_tokens=2048,
             temperature=0.3,
         )
         critique_elapsed = time.time() - start
@@ -194,6 +195,7 @@ Output JSON with scores and feedback."""
     final_critique = call_bedrock(
         "You are a technical document quality auditor.",
         final_prompt,
+        max_tokens=2048,
         temperature=0.3,
     )
     final_elapsed = time.time() - start
