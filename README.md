@@ -100,7 +100,6 @@ python3 demo.py 3      # Content Optimization만
 | **Model** | Claude Sonnet 4.5 |
 | **Model ID** | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
 | **API** | Amazon Bedrock Converse API |
-| **Region** | us-west-2 (Global Inference) |
 
 ## Project Structure
 
